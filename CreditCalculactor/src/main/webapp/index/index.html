@@ -1,0 +1,205 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            height:100vh;
+            display:flex;
+            background:#225378;
+            overflow:hidden;
+            flex-direction: column;
+            margin: 0;
+            font-family: "Montserrat";
+        }
+        .wrapper {
+            margin:auto;
+        }
+        .slider, .slidervertical {
+            position:absolute;
+            left:0px;
+            top:0px;
+            overflow:visible;
+            z-index:100;
+        }
+        /* slidershell exists only
+        to provide a positioning context for the range input and other elements.*/
+
+        .label {
+
+            vertical-align:middle;
+            display:inline-block;
+            color: white;
+            text-transform:uppercase;
+            letter-spacing:.02em;
+        &.fun {
+             color: #EB7F00;
+         }
+        &.not-fun {
+             color: #ACF0F2;
+         }
+        }
+        .slidershell {
+            margin: 0 20px;
+            vertical-align:middle;
+            display:inline-block;
+            border:0 none;
+            position:relative;
+            left:0px;
+            top:0px;
+            overflow:visible;
+            filter: url(#goo);
+        }
+
+        /* .slidertrack is the visible track on which the user drags the thumb button. */
+        .slidertrack {
+            border-radius:4px;
+            position:absolute;
+            background: #61c2ca;
+        }
+
+        /* .sliderfill adds color (or a gradient as seen here) to the track as the user
+            drags the thumb. */
+        .sliderfill {
+            position:absolute;
+            pointer-events:none;
+            background:#EB7F00;
+            border-radius:4px;
+        }
+
+        /* .sliderthumb can be any css you like including an image.
+            The dimensions must match those found in the rule for
+            input[type=range]::-webkit-slider-thumb. */
+        .sliderthumb {
+            width:30px;
+            height:30px;
+            display:block;
+            background:white;
+            border-radius:50%;
+            background-position:0px 0px;
+            position:absolute;
+            left:0px;
+            top:0px;
+            border:0 none;
+            padding:0px;margin:0px;text-align:center;
+            pointer-events:none;
+        }
+
+        /* .slidervalue can be styled as you see fit */
+
+
+        input[type=range] {
+        &:focus {
+             outline:none;
+         }
+        width:100%;
+        height:100%;
+        appearance:none;
+        margin:0px;
+        padding:0px;
+        border:0 none;
+        background:transparent;
+        color:transparent;
+        overflow:visible;
+        }
+
+        /* Make the thumbs the same size as your custom sliderthumb.
+            they will not be visible but they will be draggable.    */
+        input[type=range]::-webkit-slider-thumb {width:40px;height:40px;
+            border-radius:0px;border:0 none;background:transparent;-webkit-appearance:none;}
+        svg {
+            width:0;
+            height:0;
+            position:absolute;
+            left:0;
+            top:0;
+        }
+
+        // wow SICK responsive design
+        @media (max-width: 610px) {
+            .label {
+                display:none;
+            }
+            .slidershell {
+                margin: 0;
+            }
+        }
+
+        .sadface {
+            background: #fefefe;
+            text-align: center;
+            padding: 16px;
+            text-transform: uppercase;
+            color: desaturate(lighten(#225378, 35%), 35%);
+        }
+    </style>
+</head>
+<body>
+
+<div class="sadface">
+    Update Oct. 10 2018: broken in lots of browsers now :(
+</div>
+<div class="wrapper">
+    <div class="label not-fun">Not So Gooey</div>
+    <div class="slidershell" id="slidershell1">
+        <div class="slidertrack" id="slidertrack1"></div>
+        <div class="sliderfill" id="sliderfill1"></div>
+
+        <div class="sliderthumb" id="sliderthumb1"></div>
+
+        <input class="slider" id="slider1" type="range" min="0" max="100" value="0"
+               oninput="showValue(value,1);" onchange="showValue(value,1);"/>
+    </div>
+    <div class="label fun">Gooey</div>
+</div>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1">
+    <defs>
+        <filter id="goo">
+            <feGaussianBlur id="blur" in="SourceGraphic" result="blur" stdDeviation="10" />
+            <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 26 -9.5" result="goo" />
+        </filter>
+    </defs>
+</svg>
+
+<script>
+    function showValue(val,slidernum) {
+        /* setup variables for the elements of our slider */
+        var thumb = document.getElementById("sliderthumb" + slidernum);
+        var shell = document.getElementById("slidershell" + slidernum);
+        var track = document.getElementById("slidertrack" + slidernum);
+        var fill = document.getElementById("sliderfill" + slidernum);
+        var slider = document.getElementById("slider" + slidernum);
+        var pc = val/(slider.max - slider.min); /* the percentage slider value */
+        var thumbsize = 30; /* must match the thumb size in your css */
+        var bigval = 350; /* widest or tallest value depending on orientation */
+        var smallval = 30; /* narrowest or shortest value depending on orientation */
+        var tracksize = bigval - thumbsize;
+        var fillsize = 12;
+        var filloffset = 7;
+        var bordersize = 2;
+        var loc = pc * tracksize;
+
+        document.getElementById("blur").setAttribute("stdDeviation", val/10);
+        thumb.style.top =   "0px";
+        thumb.style.left =  loc + "px";
+        fill.style.top =  filloffset + bordersize + "px";
+        fill.style.left =  "0px";
+        fill.style.width =  loc + (thumbsize/2) + "px";
+        fill.style.height =   fillsize + "px";
+        shell.style.height =   smallval + "px";
+        shell.style.width =  bigval + "px";
+        track.style.height =   fillsize + "px"; /* adjust for border */
+        track.style.width =  bigval - 4 + "px"; /* adjust for border */
+        track.style.left =  "0px";
+        track.style.top = filloffset + bordersize + "px";
+    }
+    /* we often need a function to set the slider values on page load */
+    function setValue(val,num) {
+        document.getElementById("slider"+num).value = val;
+        showValue(val,num);
+    }
+
+    setValue(50,1);
+</script>
+</body>
+
+</html>
